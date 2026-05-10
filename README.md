@@ -8,8 +8,6 @@ A full-stack e-commerce application with a FastAPI backend and Vue.js frontend, 
 e_commerce_project/
 ├── e_commerce_api/      # FastAPI backend
 ├── e_commerce_web/      # Vue.js frontend
-├── run_api.sh          # Script to start the API server
-├── run_web.sh          # Script to start the web server
 └── screenshots/        # Project screenshots
 ```
 
