@@ -1,0 +1,27 @@
+<template>
+  <div class="public-layout">
+    <Navbar />
+    <main class="main-content">
+      <router-view />
+    </main>
+    <Footer />
+  </div>
+</template>
+
+<script setup>
+import Navbar from '../../components/Navbar.vue'
+import Footer from '../../components/Footer.vue'
+</script>
+
+<style scoped>
+.public-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 0;
+}
+</style>
