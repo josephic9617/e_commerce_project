@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
@@ -12,5 +12,6 @@ class Category(Base):
     name = Column(String(100), unique=True, nullable=False)
     image_url = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    translations = Column(JSON, nullable=True, default={})
 
     products = relationship("Product", back_populates="category")

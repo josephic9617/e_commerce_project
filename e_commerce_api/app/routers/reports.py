@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func
-from datetime import datetime, timezone
+from sqlalchemy import func, cast, Date
+from datetime import datetime, timezone, timedelta
 
 from app.core.database import get_db
 from app.core.deps import get_current_admin
@@ -98,4 +98,21 @@ def get_dashboard(
             }
             for p in top_products
         ],
+        "daily_sales": [
+            {"date": str(d[0]), "revenue": round(float(d[1]), 2)}
+            for d in db.query(
+                cast(Order.created_at, Date),
+                func.sum(Order.total_usd)
+            )
+            .filter(Order.status != "cancelled")
+            .filter(Order.created_at >= datetime.now(timezone.utc) - timedelta(days=7))
+            .group_by(cast(Order.created_at, Date))
+            .order_by(cast(Order.created_at, Date))
+            .all()
+        ],
+        "status_breakdown": {
+            s: c for s, c in db.query(Order.status, func.count(Order.id))
+            .group_by(Order.status)
+            .all()
+        }
     }

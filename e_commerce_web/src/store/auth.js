@@ -31,8 +31,13 @@ export const useAuthStore = defineStore('auth', {
       return data
     },
 
-    async register(phone, password, full_name) {
-      const { data } = await api.post('/auth/register', { phone, password, full_name })
+    async sendOtp(phone) {
+      const { data } = await api.post('/auth/send-otp', { phone })
+      return data
+    },
+
+    async register(phone, password, full_name, otp_code) {
+      const { data } = await api.post('/auth/register', { phone, password, full_name, otp_code })
       this.token = data.access_token
       this.user = data.user
       localStorage.setItem('token', data.access_token)

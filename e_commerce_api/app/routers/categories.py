@@ -36,7 +36,11 @@ def create_category(
     if existing:
         raise HTTPException(status_code=400, detail="Bu kategoriýa eýýäm bar")
 
-    category = Category(name=data.name, image_url=data.image_url)
+    category = Category(
+        name=data.name, 
+        image_url=data.image_url,
+        translations=data.translations
+    )
     db.add(category)
     db.commit()
     db.refresh(category)
@@ -58,6 +62,8 @@ def update_category(
         category.name = data.name
     if data.image_url is not None:
         category.image_url = data.image_url
+    if data.translations is not None:
+        category.translations = data.translations
 
     db.commit()
     db.refresh(category)

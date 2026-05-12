@@ -7,27 +7,36 @@
       </div>
 
       <form @submit.prevent="handleRegister">
-        <div class="form-group">
-          <label class="form-label">{{ $t('name_label') }}</label>
-          <input v-model="fullName" class="form-input" :placeholder="$t('name_placeholder')" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">{{ $t('phone_label') }}</label>
-          <input v-model="phone" class="form-input" :placeholder="$t('phone_placeholder')" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">{{ $t('password_label') }}</label>
-          <input v-model="password" type="password" class="form-input" :placeholder="$t('password_min')" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">{{ $t('confirm_password') }}</label>
-          <input v-model="confirmPassword" type="password" class="form-input" :placeholder="$t('confirm_password_placeholder')" required />
-        </div>
+        <template v-if="!otpSent">
+          <div class="form-group">
+            <label class="form-label">{{ $t('name_label') || 'Adyňyz' }}</label>
+            <input v-model="fullName" class="form-input" :placeholder="$t('name_placeholder') || 'Adyňyzy giriziň'" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ $t('phone_label') || 'Telefon belgi' }}</label>
+            <input v-model="phone" class="form-input" placeholder="+99361XXXXXX" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ $t('password_label') || 'Parol' }}</label>
+            <input v-model="password" type="password" class="form-input" :placeholder="$t('password_min') || 'Iň az 6 simwol'" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ $t('confirm_password') || 'Paroly tassyklaň' }}</label>
+            <input v-model="confirmPassword" type="password" class="form-input" :placeholder="$t('confirm_password_placeholder') || 'Paroly gaýtadan giriziň'" required />
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="form-group">
+            <label class="form-label">SMS Kod</label>
+            <input v-model="otpCode" type="text" class="form-input" placeholder="Telefona gelen kody giriziň" required />
+          </div>
+        </template>
 
         <p v-if="error" class="error-msg">{{ error }}</p>
 
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%" :disabled="loading">
-          {{ loading ? $t('creating') : $t('create_account') }}
+          {{ loading ? 'Garaşyň...' : (otpSent ? ($t('create_account') || 'Hasap döret') : 'SMS Kody Iber') }}
         </button>
       </form>
 
@@ -52,23 +61,38 @@ const fullName = ref('')
 const phone = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const otpCode = ref('')
+const otpSent = ref(false)
 const loading = ref(false)
 const error = ref('')
 
 async function handleRegister() {
   error.value = ''
 
-  if (password.value !== confirmPassword.value) {
-    error.value = t('passwords_not_match')
+  if (!otpSent.value) {
+    if (password.value !== confirmPassword.value) {
+      error.value = t('passwords_not_match') || 'Parollar deň däl'
+      return
+    }
+    
+    loading.value = true
+    try {
+      await authStore.sendOtp(phone.value)
+      otpSent.value = true
+    } catch (e) {
+      error.value = e.response?.data?.detail || 'SMS iberip bolmady'
+    } finally {
+      loading.value = false
+    }
     return
   }
 
   loading.value = true
   try {
-    await authStore.register(phone.value, password.value, fullName.value || null)
+    await authStore.register(phone.value, password.value, fullName.value || null, otpCode.value)
     router.push('/')
   } catch (e) {
-    error.value = e.response?.data?.detail || t('register_failed')
+    error.value = e.response?.data?.detail || t('register_failed') || 'Hasaba alynyp bilinmedi'
   } finally {
     loading.value = false
   }

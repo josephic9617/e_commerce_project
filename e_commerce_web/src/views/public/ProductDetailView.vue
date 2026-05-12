@@ -6,12 +6,12 @@
 
     <div class="detail-grid">
       <div class="detail-image glass-card">
-        <img :src="product.image_url || '/placeholder.svg'" :alt="product.name" />
+        <img :src="product.image_url || '/placeholder.svg'" :alt="getLocalized(product, 'name', locale)" />
       </div>
 
       <div class="detail-info">
-        <p class="detail-category">{{ product.category_name }}</p>
-        <h1 class="detail-title">{{ product.name }}</h1>
+        <p class="detail-category">{{ getLocalized(product, 'category_name', locale) }}</p>
+        <h1 class="detail-title">{{ getLocalized(product, 'name', locale) }}</h1>
 
         <div class="detail-prices">
           <span class="price-usd">${{ product.price_usd.toFixed(2) }}</span>
@@ -27,7 +27,7 @@
           </template>
         </p>
 
-        <p class="detail-description" v-if="product.description">{{ product.description }}</p>
+        <p class="detail-description" v-if="product.description">{{ getLocalized(product, 'description', locale) }}</p>
 
         <div class="detail-actions">
           <div class="quantity-control">
@@ -55,6 +55,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { getLocalized } from '../../utils/i18nHelper'
 import api from '../../api'
 import { useCartStore } from '../../store/cart'
 import { useCurrencyStore } from '../../store/currency'
@@ -62,6 +64,7 @@ import { useCurrencyStore } from '../../store/currency'
 const route = useRoute()
 const cartStore = useCartStore()
 const currencyStore = useCurrencyStore()
+const { locale } = useI18n()
 
 const product = ref(null)
 const qty = ref(1)

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: e_commerce_user
+      POSTGRES_PASSWORD: e_commerce_password
+      POSTGRES_DB: e_commerce_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+
+  api:
+    build: ./e_commerce_api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://e_commerce_user:e_commerce_password@db:5432/e_commerce_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=super-secret-key-change-me
+      - ADMIN_PHONE=99365000000
+      - ADMIN_PASSWORD=admin123
+      - UPLOAD_DIR=uploads
+    volumes:
+      - api_uploads:/app/uploads
+    depends_on:
+      - db
+      - redis
+
+  web:
+    build: ./e_commerce_web
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  api_uploads:

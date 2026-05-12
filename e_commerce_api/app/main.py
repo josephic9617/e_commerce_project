@@ -11,7 +11,7 @@ from app.models.category import Category
 from app.models.product import Product
 from app.models.order import Order, OrderItem
 from app.models.currency import Currency
-from app.routers import auth, categories, products, orders, currency, reports, upload
+from app.routers import auth, categories, products, orders, currency, reports, upload, users
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -42,6 +42,7 @@ app.include_router(orders.router, prefix="/api")
 app.include_router(currency.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
 
 
 @app.on_event("startup")

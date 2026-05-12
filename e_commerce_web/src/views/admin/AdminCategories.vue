@@ -35,8 +35,12 @@
 
     <Modal v-if="showModal" :title="editing ? t('edit_category') : t('new_category')" @close="showModal = false">
       <div class="form-group">
-        <label class="form-label">{{ t('th_name') }}</label>
+        <label class="form-label">{{ t('th_name') }} (TM)</label>
         <input v-model="form.name" class="form-input" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ t('th_name') }} (RU)</label>
+        <input v-model="form.name_ru" class="form-input" />
       </div>
       <p v-if="formError" class="error-msg">{{ formError }}</p>
       <template #footer>
@@ -64,7 +68,7 @@ const editingId = ref(null)
 const saving = ref(false)
 const formError = ref('')
 
-const form = ref({ name: '' })
+const form = ref({ name: '', name_ru: '' })
 
 async function fetchCategories() {
   loading.value = true
@@ -83,11 +87,14 @@ function openModal(cat = null) {
   if (cat) {
     editing.value = true
     editingId.value = cat.id
-    form.value = { name: cat.name }
+    form.value = { 
+      name: cat.name,
+      name_ru: cat.translations?.ru?.name || ''
+    }
   } else {
     editing.value = false
     editingId.value = null
-    form.value = { name: '' }
+    form.value = { name: '', name_ru: '' }
   }
   showModal.value = true
 }
@@ -96,10 +103,16 @@ async function saveCategory() {
   formError.value = ''
   saving.value = true
   try {
+    const payload = {
+      name: form.value.name,
+      translations: {
+        ru: { name: form.value.name_ru }
+      }
+    }
     if (editing.value) {
-      await api.put(`/categories/${editingId.value}`, form.value)
+      await api.put(`/categories/${editingId.value}`, payload)
     } else {
-      await api.post('/categories/', form.value)
+      await api.post('/categories/', payload)
     }
     showModal.value = false
     fetchCategories()

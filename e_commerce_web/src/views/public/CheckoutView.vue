@@ -45,7 +45,7 @@
         <h3>{{ $t('order_content') }}</h3>
         <div class="summary-items">
           <div class="summary-item" v-for="item in cartStore.items" :key="item.product_id">
-            <span>{{ item.name }} &times; {{ item.quantity }}</span>
+            <span>{{ getLocalized(item, 'name', locale) }} &times; {{ item.quantity }}</span>
             <strong>${{ (item.price_usd * item.quantity).toFixed(2) }}</strong>
           </div>
         </div>
@@ -70,12 +70,13 @@ import { useAuthStore } from '../../store/auth'
 import { useCartStore } from '../../store/cart'
 import { useCurrencyStore } from '../../store/currency'
 import { useI18n } from 'vue-i18n'
+import { getLocalized } from '../../utils/i18nHelper'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
 const currencyStore = useCurrencyStore()
-const { t } = useI18n({ useScope: 'global' })
+const { t, locale } = useI18n({ useScope: 'global' })
 
 const form = ref({
   guest_name: '',

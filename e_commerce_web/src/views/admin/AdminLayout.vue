@@ -12,6 +12,9 @@
         <router-link to="/admin/products" class="nav-item" :class="{ active: $route.name === 'admin-products' }">
           <span class="nav-icon">&#128230;</span> {{ t('admin_products') }}
         </router-link>
+        <router-link to="/admin/users" class="nav-item" :class="{ active: $route.name === 'admin-users' }">
+          <span class="nav-icon">&#128101;</span> Ulanyjylar
+        </router-link>
         <router-link to="/admin/categories" class="nav-item" :class="{ active: $route.name === 'admin-categories' }">
           <span class="nav-icon">&#128193;</span> {{ t('admin_categories') }}
         </router-link>

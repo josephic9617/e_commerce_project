@@ -13,10 +13,10 @@
       <div class="cart-items">
         <div class="cart-item glass-card" v-for="item in cartStore.items" :key="item.product_id">
           <div class="item-image">
-            <img :src="item.image_url || '/placeholder.svg'" :alt="item.name" />
+            <img :src="item.image_url || '/placeholder.svg'" :alt="getLocalized(item, 'name', locale)" />
           </div>
           <div class="item-info">
-            <h3 class="item-name">{{ item.name }}</h3>
+            <h3 class="item-name">{{ getLocalized(item, 'name', locale) }}</h3>
             <div class="item-prices">
               <span class="price-usd">${{ item.price_usd.toFixed(2) }}</span>
               <span class="price-tmt">{{ currencyStore.toTMT(item.price_usd).toFixed(2) }} TMT</span>
@@ -65,9 +65,12 @@
 <script setup>
 import { useCartStore } from '../../store/cart'
 import { useCurrencyStore } from '../../store/currency'
+import { useI18n } from 'vue-i18n'
+import { getLocalized } from '../../utils/i18nHelper'
 
 const cartStore = useCartStore()
 const currencyStore = useCurrencyStore()
+const { locale } = useI18n()
 
 function updateQty(productId, qty) {
   if (qty < 1) {

@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     ADMIN_PHONE: str = "+99361000000"
     ADMIN_PASSWORD: str = "admin123"
     UPLOAD_DIR: str = "uploads"
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     class Config:
         env_file = ".env"

@@ -28,7 +28,7 @@
           :class="{ active: selectedCategory === cat.id }"
           @click="toggleCategory(cat.id)"
         >
-          {{ cat.name }}
+          {{ getLocalized(cat, 'name', locale) }}
         </button>
         <button
           class="category-chip"
@@ -81,11 +81,14 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { getLocalized } from '../../utils/i18nHelper'
 import api from '../../api'
 import ProductCard from '../../components/ProductCard.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { locale } = useI18n()
 
 const products = ref([])
 const categories = ref([])

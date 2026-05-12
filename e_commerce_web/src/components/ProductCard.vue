@@ -3,7 +3,7 @@
     <div class="card-image">
       <img
         :src="product.image_url || '/placeholder.svg'"
-        :alt="product.name"
+        :alt="getLocalized(product, 'name', locale)"
         loading="lazy"
       />
       <div class="card-badge" v-if="product.stock < 5 && product.stock > 0">
@@ -14,8 +14,8 @@
       </div>
     </div>
     <div class="card-body">
-      <p class="card-category">{{ product.category_name }}</p>
-      <h3 class="card-title">{{ product.name }}</h3>
+      <p class="card-category">{{ getLocalized(product, 'category_name', locale) }}</p>
+      <h3 class="card-title">{{ getLocalized(product, 'name', locale) }}</h3>
       <div class="card-prices">
         <span class="price-usd">${{ product.price_usd.toFixed(2) }}</span>
         <span class="price-tmt">{{ currencyStore.toTMT(product.price_usd).toFixed(2) }} TMT</span>
@@ -34,6 +34,8 @@
 <script setup>
 import { useCartStore } from '../store/cart'
 import { useCurrencyStore } from '../store/currency'
+import { useI18n } from 'vue-i18n'
+import { getLocalized } from '../utils/i18nHelper'
 
 const props = defineProps({
   product: { type: Object, required: true }
@@ -41,6 +43,7 @@ const props = defineProps({
 
 const cartStore = useCartStore()
 const currencyStore = useCurrencyStore()
+const { locale } = useI18n()
 
 function addToCart() {
   cartStore.addItem(props.product)

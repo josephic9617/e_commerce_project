@@ -4,6 +4,7 @@ import math
 
 from app.core.database import get_db
 from app.core.deps import get_current_admin
+from app.core import redis_cache
 from app.models.product import Product
 from app.models.category import Category
 from app.models.user import User
@@ -30,6 +31,7 @@ def _product_to_response(product: Product) -> ProductResponse:
         is_active=product.is_active,
         created_at=product.created_at,
         updated_at=product.updated_at,
+        translations=product.translations,
     )
 
 
@@ -41,6 +43,11 @@ def get_products(
     search: str | None = None,
     db: Session = Depends(get_db),
 ):
+    cache_key = f"products:page_{page}:per_{per_page}:cat_{category_id}:search_{search}"
+    cached_data = redis_cache.get_cache(cache_key)
+    if cached_data:
+        return cached_data
+
     query = db.query(Product).filter(Product.is_active == True)
 
     if category_id:
@@ -52,13 +59,15 @@ def get_products(
     pages = math.ceil(total / per_page) if total > 0 else 1
     products = query.offset((page - 1) * per_page).limit(per_page).all()
 
-    return PaginatedProducts(
+    response_data = PaginatedProducts(
         items=[_product_to_response(p) for p in products],
         total=total,
         page=page,
         pages=pages,
         per_page=per_page,
     )
+    redis_cache.set_cache(cache_key, response_data.model_dump(mode="json"), expire=1800)
+    return response_data
 
 
 @router.get("/all", response_model=PaginatedProducts)
@@ -113,6 +122,7 @@ def create_product(
     db.add(product)
     db.commit()
     db.refresh(product)
+    redis_cache.clear_cache_pattern("products:*")
     return _product_to_response(product)
 
 
@@ -133,6 +143,7 @@ def update_product(
 
     db.commit()
     db.refresh(product)
+    redis_cache.clear_cache_pattern("products:*")
     return _product_to_response(product)
 
 
@@ -148,3 +159,4 @@ def delete_product(
 
     db.delete(product)
     db.commit()
+    redis_cache.clear_cache_pattern("products:*")

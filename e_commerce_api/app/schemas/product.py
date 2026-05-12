@@ -10,6 +10,7 @@ class ProductCreate(BaseModel):
     image_url: str | None = None
     stock: int = 0
     is_active: bool = True
+    translations: dict | None = None
 
 
 class ProductUpdate(BaseModel):
@@ -20,6 +21,7 @@ class ProductUpdate(BaseModel):
     image_url: str | None = None
     stock: int | None = None
     is_active: bool | None = None
+    translations: dict | None = None
 
 
 class ProductResponse(BaseModel):
@@ -34,6 +36,7 @@ class ProductResponse(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    translations: dict | None = None
 
     class Config:
         from_attributes = True

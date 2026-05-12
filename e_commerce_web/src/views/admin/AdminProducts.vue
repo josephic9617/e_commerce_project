@@ -67,12 +67,20 @@
     <Modal v-if="showModal" :title="editing ? t('edit_product') : t('new_product')" @close="showModal = false">
       <form @submit.prevent="saveProduct">
         <div class="form-group">
-          <label class="form-label">{{ t('th_name') }}</label>
+          <label class="form-label">{{ t('th_name') }} (TM)</label>
           <input v-model="form.name" class="form-input" required />
         </div>
         <div class="form-group">
-          <label class="form-label">{{ t('description_label') }}</label>
+          <label class="form-label">{{ t('th_name') }} (RU)</label>
+          <input v-model="form.name_ru" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ t('description_label') }} (TM)</label>
           <textarea v-model="form.description" class="form-input"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ t('description_label') }} (RU)</label>
+          <textarea v-model="form.description_ru" class="form-input"></textarea>
         </div>
         <div class="form-group">
           <label class="form-label">{{ t('th_price_usd') }}</label>
@@ -133,7 +141,9 @@ const formError = ref('')
 
 const form = ref({
   name: '',
+  name_ru: '',
   description: '',
+  description_ru: '',
   price_usd: 0,
   category_id: null,
   stock: 0,
@@ -183,7 +193,9 @@ function openModal(product = null) {
     editingId.value = product.id
     form.value = {
       name: product.name,
+      name_ru: product.translations?.ru?.name || '',
       description: product.description || '',
+      description_ru: product.translations?.ru?.description || '',
       price_usd: product.price_usd,
       category_id: product.category_id,
       stock: product.stock,
@@ -195,7 +207,9 @@ function openModal(product = null) {
     editingId.value = null
     form.value = {
       name: '',
+      name_ru: '',
       description: '',
+      description_ru: '',
       price_usd: 0,
       category_id: categories.value[0]?.id || null,
       stock: 0,
@@ -225,10 +239,20 @@ async function saveProduct() {
   formError.value = ''
   saving.value = true
   try {
+    const payload = { ...form.value }
+    payload.translations = {
+      ru: {
+        name: payload.name_ru,
+        description: payload.description_ru
+      }
+    }
+    delete payload.name_ru
+    delete payload.description_ru
+
     if (editing.value) {
-      await api.put(`/products/${editingId.value}`, form.value)
+      await api.put(`/products/${editingId.value}`, payload)
     } else {
-      await api.post('/products/', form.value)
+      await api.post('/products/', payload)
     }
     showModal.value = false
     fetchProducts()
